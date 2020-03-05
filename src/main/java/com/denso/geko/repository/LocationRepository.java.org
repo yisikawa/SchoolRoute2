@@ -1,0 +1,96 @@
+package com.denso.geko.repository;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Repository;
+
+import com.denso.geko.domain.LocationDomain;
+
+@Repository
+@Mapper
+public interface LocationRepository {
+    
+    /**
+     * 指定したBeaconTXのID、日時での経路情報を取得する
+     * @param btxId BeaconTXのID
+     * @param fromTime 開始日時(UNIX time)
+     * @param toTime 終了日時(UNIX time)
+     * @return 経路情報
+     */
+    @Select("SELECT "
+            + "a.btx_id as btxId,"
+            + "a.recv_timestamp as RecvTimestamp,"
+            + "a.major,"
+            + "a.minor,"
+            + "a.pos_id as posId,"
+            + "a.beacon_id as beaconId,"
+            + "b.lat,"
+            + "b.lon"
+            + " FROM geko.td_location a"
+            + " INNER JOIN geko.tm_point b"
+            + " ON b.id = a.beacon_id"
+            + " AND b.invalid = FALSE"
+            + " WHERE a.btx_id  = #{btxId}"
+            + " AND a.recv_timestamp BETWEEN #{fromTime} AND #{toTime}"
+            + " ORDER BY a.recv_timestamp ASC")
+    public List<LocationDomain> search(@Param("btxId")int btxId, @Param("fromTime")long fromTime, @Param("toTime")long toTime);
+    
+    /**
+     * 指定したBeaconTXのID、日付の下校開始日時(UNIX time)を取得する
+     * ※下校開始日時・・・13:00以降で学校ビーコンを最初に受信した時間
+     * @param btxId BeaconTXのID
+     * @param fromTime 開始日時(UNIX time)
+     * @param toTime　終了日時(UNIX time)
+     * @return 下校開始日時(UNIX time)
+     */
+    @Select("SELECT min(recv_timestamp) FROM geko.td_location"
+            + " WHERE btx_id = #{btxId}"
+            + " AND recv_timestamp BETWEEN #{fromTime} AND #{toTime}"
+            + " AND beacon_id IN (SELECT id FROM geko.tm_point WHERE type = '0' AND invalid = FALSE)")
+    public Long getFromTime(@Param("btxId")int btxId, @Param("fromTime")long fromTime, @Param("toTime")long toTime);
+    
+    /**
+     * 指定したBeaconTXのID、日付の登校終了日時(UNIX time)を取得する
+     * ※登校終了日時・・・9:00以前で学校ビーコンを最後に受信した時間
+     * @param btxId BeaconTXのID
+     * @param fromTime 開始日時(UNIX time)
+     * @param toTime　終了日時(UNIX time)
+     * @return 登校終了日時(UNIX time)
+     */
+    @Select("SELECT max(recv_timestamp) FROM geko.td_location"
+            + " WHERE btx_id = #{btxId}"
+            + " AND recv_timestamp BETWEEN #{fromTime} AND #{toTime}"
+            + " AND beacon_id IN (SELECT id FROM geko.tm_point WHERE type = '0' AND invalid = FALSE)")
+    public Long getToTime(@Param("btxId")int btxId, @Param("fromTime")long fromTime, @Param("toTime")long toTime);
+
+    /**
+     * 指定したBeaconTXのID、日時での経路情報を取得する
+     * @param btxId BeaconTXのID
+     * @param fromTime 開始日時(UNIX time)
+     * @param toTime 終了日時(UNIX time)
+     * @return 経路情報
+     */
+    @Select("SELECT "
+            + "a.btx_id as btxId,"
+            + "a.recv_timestamp as RecvTimestamp,"
+            + "a.major,"
+            + "a.minor,"
+            + "a.pos_id as posId,"
+            + "a.beacon_id as beaconId,"
+            + "b.lat,"
+            + "b.lon,"
+            + "TO_TIMESTAMP(a.recv_timestamp / 1000) as recvDate"
+            + " FROM geko.td_location a"
+            + " INNER JOIN geko.tm_point b"
+            + " ON b.id = a.beacon_id"
+            + " AND b.invalid = FALSE"
+            + " WHERE a.btx_id  = #{btxId}"
+            + " AND a.recv_timestamp BETWEEN #{fromTime} AND #{toTime}"
+            + " ORDER BY a.recv_timestamp ASC")
+    public List<LocationDomain> download(@Param("btxId")int btxId, @Param("fromTime")long fromTime, @Param("toTime")long toTime);
+    
+
+}

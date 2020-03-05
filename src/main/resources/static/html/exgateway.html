@@ -1,0 +1,45 @@
+<meta charset="utf-8"/>
+<div id="exgateway">
+  <table id="exgateway-tbl" class="display"></table>
+</div>
+<script type="text/javascript">
+$(function() {
+  $.getJSON('https://e3besjz9va.execute-api.ap-northeast-1.amazonaws.com/prod/gateway/0', function(json) {
+
+    var data = json.filter(function(item, index) {
+                if ("timestamp" in item) {
+                  return true;
+                }
+              });
+    $("#exgateway-tbl").DataTable({
+          data : data,
+          aoColumns : [
+              {
+                "sTitle" : "EXGateway番号",
+                "mData" : "num"
+              },
+              {
+                "sTitle" : "EXGatewayデバイスID",
+                "mData" : "deviceid"
+              },
+              {
+                "sTitle" : "テレメトリ取得時刻",
+                "mData" : "updated",
+                "render" : function(data, type, row) {
+                  if (type === "display") {
+                    var d = new Date(data);
+                    return d.getFullYear() + "/"
+                        + ('00' + (d.getMonth() + 1)).slice(-2) + "/"
+                        + ('00' + d.getDate()).slice(-2) + " "
+                        + ('00' + d.getHours()).slice(-2) + ":"
+                        + ('00' + d.getMinutes()).slice(-2) + ":"
+                        + ('00' + d.getSeconds()).slice(-2);
+                  } else {
+                    return data;
+                  }
+                }
+              } ]
+    });
+  });
+})
+</script>

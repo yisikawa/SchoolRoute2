@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ログイン</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
+    <link rel="stylesheet" href="/css/common.css"/>
+</head>
+<body>
+    <div th:if="${param.error}">
+        <h1 class="err-msg">ユーザIDまたはパスワードが間違っています。</h1>
+    </div>
+    <div th:if="${param.logout}">
+        <h1 class="info-msg">Logged out.</h1>
+    </div>
+    <div class="login">
+    <form th:action="@{/web/login}" method="post" name="loginFrm" class="loginFrm">
+        <span><i class="fas fa-user fa-2x"></i></span>
+<!-- 
+        <input type="email" name="userid" placeholder="E-MAIL" required autofocus />
+ -->
+        <input type="text" name="userid" placeholder="User ID" required autofocus />
+        <span><i class="fas fa-unlock-alt fa-2x"></i></span>
+        <input type="password" name="password" placeholder="Password" required />
+        <p class="remember">
+            <input type="checkbox" name="remember-me" />
+            <label>ログイン状態を保持する</label>
+        </p>
+        <input type="submit" value="Log in"/>
+     </form>
+    </div>
+</body>
+</html>

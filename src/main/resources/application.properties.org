@@ -1,0 +1,41 @@
+server.port=10080
+
+# cache
+spring.resources.cache.cachecontrol.max-age: 3600
+
+# jackson
+#spring.jackson.default-property-inclusion=NON_NULL
+spring.jackson.date-format=yyyy.MM.dd'T'HH:mm:ss.SSS'Z'
+spring.jackson.time-zone=GMT
+
+# upload file size
+spring.servlet.multipart.max-file-size=100MB
+spring.servlet.multipart.max-request-size=100MB
+
+# datasource
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url=jdbc:postgresql://localhost:5432/geko
+spring.datasource.username=geko
+spring.datasource.password=geko@1qazxsw2
+
+# log
+logging.file=logs/geko.log
+logging.level.root=WARN
+logging.level.org.springframework.web=INFO
+logging.level.org.springframework.security=INFO
+logging.level.com.denso.geko.web.controller=INFO
+logging.level.com.denso.geko.repository=DEBUG
+# logging.level.org.springframework.security.web.authentication.rememberme=DEBUG
+# logging.level.org.springframework.jdbc.core=DEBUG
+
+# client proxy
+httpclient.proxy.hostname=in-proxy-o.denso.co.jp
+httpclient.proxy.port=8080
+
+# tomcat
+server.tomcat.connector.scheme=http
+server.tomcat.connector.proxyname=localhost
+#server.tomcat.connector.proxyname=10.7.29.184
+server.tomcat.connector.proxyport=10080
+server.tomcat.connector.secure=false
+

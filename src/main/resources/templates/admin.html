@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>管理者画面</title>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.0.6/dist/css/leaflet.extra-markers.min.css" />
+<link rel="stylesheet" href="/js/lib/Leaflet.Playback/LeafletPlayback.css" />
+<!-- 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.0.10/font-awesome-animation.css" media="all">
+ -->
+<link rel="stylesheet" href="/css/common.css" />
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+<script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"></script>
+<script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.0.6/dist/js/leaflet.extra-markers.min.js"></script>
+<script src="/js/lib/Leaflet.Playback/LeafletPlayback.js"></script>
+</head>
+<body>
+  <div id="tabs">
+    <ul>
+      <li><a href="#sensor-ul">U/L</a></li>
+      <li><a href="#download">D/L</a></li>
+<!-- 
+      <li><a href="/html/exbeacon.html">EXB</a></li>
+      <li><a href="/html/exgateway.html">EXG</a></li>
+      <li><a href="/html/mapAdmin.html">map</a></li>
+ -->
+    </ul>
+    <div id="sensor-ul">
+      <form th:action="@{/admin/sensor}" method="post" enctype="multipart/form-data">
+        <p>登録するセンサーのCSVファイルを指定してください。</p>
+        <p>
+          <input type="file" name="sensor_file" id="sensorfile" required>
+        </p>
+        <p>
+          <input type="submit" value="アップロード">
+        </p>
+        <div th:if="${error}">
+          <h1 class="err-msg" th:each="errmsg: ${error}">[[${errmsg}]]</h1>
+        </div>
+        <div th:if="${msg}">
+          <h1 class="info-msg">[[${msg}]]</h1>
+        </div>
+      </form>
+    </div>
+    <div id="download">
+      <form th:action="@{/admin/download}" method="get">
+        <div>
+          <label for="dl-date">日付</label><input type="date" name="date" required>
+          <label for="tag-id">タグID</label><input type="text" name="btxId" required>
+        </div>
+        <div class="dl-type">
+          <input id="rd-location" type="radio" name="type" value="1" checked="checked" /><label for="rd-location">測位</label>
+          <input id="rd-sensor" type="radio" name="type" value="2" /><label for="rd-sensor">センサー</label>
+        </div>
+        <input type="submit" value=" D/L">
+      </form>
+    </div>
+  </div>
+  <div id="token" th:text="${token}"></div>
+  <script src="/js/lib/Leaflet.Playback/LeafletPlayback_control.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

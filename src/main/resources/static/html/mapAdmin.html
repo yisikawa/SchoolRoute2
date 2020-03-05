@@ -1,0 +1,132 @@
+<meta charset="utf-8"/>
+<script src="/js/map-common.js"></script>
+
+<input type="button" id="route-view" value="経路表示">
+<input type="text" id="select-date" readonly>
+<fieldset id="togeko">
+  <label for="toko">登校</label><input type="radio" id="toko" name="radio-togeko" value="1">
+  <label for="geko">下校</label><input type="radio" id="geko" name="radio-togeko" value="2" checked="checked">
+</fieldset>
+<fieldset id="child-list">
+</fieldset>
+<div id="map"></div>
+
+<script type="text/javascript">
+var btxId = 0;
+$(function() {
+  /* 認証情報設定 */
+  $.ajaxSetup({
+    beforeSend : function(xhr, settings) {
+      xhr.setRequestHeader('Authorization', 'Bearer ' + $("#token").text());
+    }
+  });
+
+  // 日付の初期値を設定
+  today = new Date();
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
+  today.setMilliseconds(0);
+  var selectDate = today.getFullYear() + "/"
+      + ('00' + (today.getMonth() + 1)).slice(-2) + "/"
+      + ('00' + today.getDate()).slice(-2);
+  $("#select-date").val(selectDate);
+
+  // 地図設定
+  map = L.map('map', {
+    center : [ 35.003081, 137.002055 ],
+    zoom : 16,
+    zoomControl : false,
+    maxBounds : [ [ 35.007000, 136.997500 ], [ 34.998500, 137.005500 ] ], // 左上:右下の制限座標
+    minZoom : 16,
+    layers : [ t_pale ]
+  });
+  L.control.layers(Map_b, null, null).addTo(map);
+
+  // 日付
+  $("#select-date").datepicker(
+      {
+        dateFormat : 'yy/mm/dd',
+        constrainInput : true,
+        showMonthAfterYear : true,
+        yearSuffix : '年',
+        monthNames : [ '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月' ],
+        monthNamesShort : [ '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月' ],
+        dayNamesMin : [ '日', '月', '火', '水', '木', '金', '土' ],
+        maxDate : "0d" // 現在日以降は選択不可
+      });
+
+  $("#select-date").datepicker();
+
+  $("#togeko input[type='radio']").checkboxradio({
+    icon : false
+  });
+
+  $("#togeko").controlgroup();
+
+  $.when(
+    child.get()
+  )
+  .done(function() {
+    child.data.forEach(function(data) {
+      $("#child-list")
+          .append(
+              "<label for='child-" + data.user_id + "'>"
+                  + data.note
+                  + "</label>"
+                  + "<input type='checkbox' id='child-" + data.user_id + "' name='child-list' value='" + data.user_id +"'/>");
+    });
+    $("#child-list input[type='checkbox']").checkboxradio();
+    $("#child-list").controlgroup({direction : "vertical"});
+  })
+  .fail(function() {
+    message("インターネットにつながっている確認してください。");
+  });
+
+  var _colorIdx = 0, _colors = [ 'orange', 'green', 'blue', 'purple',
+      'darkred', 'cadetblue', 'red', 'darkgreen', 'darkblue', 'darkpurple' ];
+  // =====================================================
+  // =============== Playback ============================
+  // =====================================================
+  var playbackOptions = {
+    // layer and marker options
+    layer : {
+      pointToLayer : function(featureData, latlng) {
+        var result = {};
+
+        if (featureData && featureData.properties
+            && featureData.properties.path_options) {
+          result = featureData.properties.path_options;
+        }
+
+        if (!result.radius) {
+          result.radius = 2;
+        }
+
+        return new L.CircleMarker(latlng, result);
+      }
+    },
+    // markerColor :
+    //  'red', 'orange-dark', 'orange', 'yellow', 'blue-dark', 'cyan',
+    //  'purple', 'violet', 'pink', 'green-dark', 'green', 'green-light', 'black', or 'white'
+    marker : function() {
+      return {
+        icon : L.ExtraMarkers.icon({
+          icon : 'fa-number',
+          markerColor : 'green-dark',
+          number : btxId
+        })
+      };
+    }
+  };
+
+  // Initialize playback
+  var playback = new L.Playback(map, null, null, playbackOptions);
+
+  // Initialize custom control
+  var control = new L.Playback.Control(playback);
+  control.addTo(map);
+
+});
+</script>
+ 
